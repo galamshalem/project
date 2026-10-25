@@ -1,0 +1,30 @@
+# Only pyproject.toml, uv.lock and app/ are needed to build the image.
+
+# Local virtualenv (rebuilt inside the image for Linux)
+.venv/
+
+# Local database and runtime data
+data/
+*.db
+
+# Python / tooling caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# Tests, docs and dev files
+tests/
+README.md
+CLAUDE.md
+.python-version
+
+# VCS, editors, OS
+.git/
+.gitignore
+.dockerignore
+Dockerfile
+.vscode/
+.idea/
+.DS_Store
+.env
