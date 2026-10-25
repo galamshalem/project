@@ -2,9 +2,9 @@
 
 from datetime import datetime
 from enum import Enum
-from typing import Annotated
+from typing import Annotated, Self
 
-from pydantic import BaseModel, ConfigDict, Field, StringConstraints
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 
 
 # (str, Enum) per the assignment spec; equivalent to StrEnum for our purposes.
@@ -49,6 +49,15 @@ class BookUpdate(BaseModel):
     rating: Rating | None = None
     is_read: bool | None = None
     review: str | None = None
+
+    @model_validator(mode="after")
+    def reject_null_required_fields(self) -> Self:
+        # Fields may be omitted, but an explicit null would violate NOT NULL in the DB.
+        # rating and review stay nullable so a client can clear them.
+        for field in ("title", "author", "genre", "is_read"):
+            if field in self.model_fields_set and getattr(self, field) is None:
+                raise ValueError(f"{field} cannot be null")
+        return self
 
 
 class BookRead(BookBase):
