@@ -142,6 +142,12 @@ Each test runs against its own fresh in-memory database, so tests never touch
 `./data/books.db`. The suite covers CRUD, every filter and filter combinations,
 validation errors, 404s, and persistence across an engine restart.
 
+Coverage report (terminal + HTML in `htmlcov/`):
+
+```bash
+uv run pytest --cov=app --cov-report=term-missing --cov-report=html
+```
+
 Lint and format checks:
 
 ```bash
@@ -174,6 +180,17 @@ docker volume rm book-vault-data          # delete the data for good
 The image is a multi-stage build: dependencies are installed with uv in a builder
 stage, and the runtime stage is `python:3.11-slim` running as a non-root user.
 
+## Verification
+
+[docs/proof/PROOF.md](docs/proof/PROOF.md) collects evidence that the project works.
+It includes:
+
+- a lint and test run on a fresh clone of the repository
+- the test coverage report
+- a live curl session, including a server restart
+- Swagger UI screenshots of real requests
+- a Docker run that shows the data survives container restarts
+
 ## Project structure
 
 ```
@@ -186,6 +203,7 @@ book-vault/
 ├── tests/
 │   ├── conftest.py    # in-memory test DB fixture
 │   └── test_main.py   # API tests
+├── docs/proof/        # verification evidence (PROOF.md, outputs, screenshots)
 ├── data/              # SQLite database (created at runtime, gitignored)
 ├── pyproject.toml     # dependencies and tool config
 ├── uv.lock            # locked dependency versions

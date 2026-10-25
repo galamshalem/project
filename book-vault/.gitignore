@@ -18,3 +18,7 @@ data/
 .DS_Store
 .vscode/
 .idea/
+
+# Coverage output
+.coverage
+htmlcov/

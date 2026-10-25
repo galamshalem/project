@@ -1,0 +1,284 @@
+# Live API demo: Personal Book Vault & Reading Tracker
+# Date: 2026-10-25 18:41:36 UTC
+# Server: DATABASE_URL=sqlite:///./data/demo.db uv run uvicorn app.main:app --port 8000
+# The database file did not exist before this run (fresh, empty database).
+
+### 1. Create book: Dune (Sci-Fi, read, rating 5)
+$ curl -X POST http://localhost:8000/books -H Content-Type:\ application/json -d \{\"title\":\"Dune\"\,\"author\":\"Frank\ Herbert\"\,\"genre\":\"Sci-Fi\"\,\"rating\":5\,\"is_read\":true\,\"review\":\"A\ masterpiece\ of\ world-building.\"\}
+HTTP 201
+{
+  "title": "Dune",
+  "author": "Frank Herbert",
+  "genre": "Sci-Fi",
+  "rating": 5,
+  "is_read": true,
+  "review": "A masterpiece of world-building.",
+  "id": 1,
+  "created_at": "2026-10-25T18:41:36.666933",
+  "updated_at": "2026-10-25T18:41:36.666941"
+}
+
+### 2. Create book: The Hobbit (Fantasy, read, rating 4)
+$ curl -X POST http://localhost:8000/books -H Content-Type:\ application/json -d \{\"title\":\"The\ Hobbit\"\,\"author\":\"J.R.R.\ Tolkien\"\,\"genre\":\"Fantasy\"\,\"rating\":4\,\"is_read\":true\}
+HTTP 201
+{
+  "title": "The Hobbit",
+  "author": "J.R.R. Tolkien",
+  "genre": "Fantasy",
+  "rating": 4,
+  "is_read": true,
+  "review": null,
+  "id": 2,
+  "created_at": "2026-10-25T18:41:36.755917",
+  "updated_at": "2026-10-25T18:41:36.755922"
+}
+
+### 3. Create book: Gone Girl (Thriller, unread, no rating)
+$ curl -X POST http://localhost:8000/books -H Content-Type:\ application/json -d \{\"title\":\"Gone\ Girl\"\,\"author\":\"Gillian\ Flynn\"\,\"genre\":\"Thriller\"\}
+HTTP 201
+{
+  "title": "Gone Girl",
+  "author": "Gillian Flynn",
+  "genre": "Thriller",
+  "rating": null,
+  "is_read": false,
+  "review": null,
+  "id": 3,
+  "created_at": "2026-10-25T18:41:36.802347",
+  "updated_at": "2026-10-25T18:41:36.802357"
+}
+
+### 4. List all books
+$ curl http://localhost:8000/books
+HTTP 200
+[
+  {
+    "title": "Dune",
+    "author": "Frank Herbert",
+    "genre": "Sci-Fi",
+    "rating": 5,
+    "is_read": true,
+    "review": "A masterpiece of world-building.",
+    "id": 1,
+    "created_at": "2026-10-25T18:41:36.666933",
+    "updated_at": "2026-10-25T18:41:36.666941"
+  },
+  {
+    "title": "The Hobbit",
+    "author": "J.R.R. Tolkien",
+    "genre": "Fantasy",
+    "rating": 4,
+    "is_read": true,
+    "review": null,
+    "id": 2,
+    "created_at": "2026-10-25T18:41:36.755917",
+    "updated_at": "2026-10-25T18:41:36.755922"
+  },
+  {
+    "title": "Gone Girl",
+    "author": "Gillian Flynn",
+    "genre": "Thriller",
+    "rating": null,
+    "is_read": false,
+    "review": null,
+    "id": 3,
+    "created_at": "2026-10-25T18:41:36.802347",
+    "updated_at": "2026-10-25T18:41:36.802357"
+  }
+]
+
+### 5. Filter by genre=Fantasy
+$ curl http://localhost:8000/books\?genre=Fantasy
+HTTP 200
+[
+  {
+    "title": "The Hobbit",
+    "author": "J.R.R. Tolkien",
+    "genre": "Fantasy",
+    "rating": 4,
+    "is_read": true,
+    "review": null,
+    "id": 2,
+    "created_at": "2026-10-25T18:41:36.755917",
+    "updated_at": "2026-10-25T18:41:36.755922"
+  }
+]
+
+### 6. Filter by is_read=true
+$ curl http://localhost:8000/books\?is_read=true
+HTTP 200
+[
+  {
+    "title": "Dune",
+    "author": "Frank Herbert",
+    "genre": "Sci-Fi",
+    "rating": 5,
+    "is_read": true,
+    "review": "A masterpiece of world-building.",
+    "id": 1,
+    "created_at": "2026-10-25T18:41:36.666933",
+    "updated_at": "2026-10-25T18:41:36.666941"
+  },
+  {
+    "title": "The Hobbit",
+    "author": "J.R.R. Tolkien",
+    "genre": "Fantasy",
+    "rating": 4,
+    "is_read": true,
+    "review": null,
+    "id": 2,
+    "created_at": "2026-10-25T18:41:36.755917",
+    "updated_at": "2026-10-25T18:41:36.755922"
+  }
+]
+
+### 7. Filter by min_rating=4 (unrated books excluded)
+$ curl http://localhost:8000/books\?min_rating=4
+HTTP 200
+[
+  {
+    "title": "Dune",
+    "author": "Frank Herbert",
+    "genre": "Sci-Fi",
+    "rating": 5,
+    "is_read": true,
+    "review": "A masterpiece of world-building.",
+    "id": 1,
+    "created_at": "2026-10-25T18:41:36.666933",
+    "updated_at": "2026-10-25T18:41:36.666941"
+  },
+  {
+    "title": "The Hobbit",
+    "author": "J.R.R. Tolkien",
+    "genre": "Fantasy",
+    "rating": 4,
+    "is_read": true,
+    "review": null,
+    "id": 2,
+    "created_at": "2026-10-25T18:41:36.755917",
+    "updated_at": "2026-10-25T18:41:36.755922"
+  }
+]
+
+### 8. Get book by id (2)
+$ curl http://localhost:8000/books/2
+HTTP 200
+{
+  "title": "The Hobbit",
+  "author": "J.R.R. Tolkien",
+  "genre": "Fantasy",
+  "rating": 4,
+  "is_read": true,
+  "review": null,
+  "id": 2,
+  "created_at": "2026-10-25T18:41:36.755917",
+  "updated_at": "2026-10-25T18:41:36.755922"
+}
+
+### 9. PUT: mark Gone Girl (id 3) as read, rating 5, with a review
+$ curl -X PUT http://localhost:8000/books/3 -H Content-Type:\ application/json -d \{\"is_read\":true\,\"rating\":5\,\"review\":\"Could\ not\ put\ it\ down.\"\}
+HTTP 200
+{
+  "title": "Gone Girl",
+  "author": "Gillian Flynn",
+  "genre": "Thriller",
+  "rating": 5,
+  "is_read": true,
+  "review": "Could not put it down.",
+  "id": 3,
+  "created_at": "2026-10-25T18:41:36.802347",
+  "updated_at": "2026-10-25T18:41:37.073784"
+}
+
+### 10. Invalid: rating 6 (expect 422)
+$ curl -X POST http://localhost:8000/books -H Content-Type:\ application/json -d \{\"title\":\"Bad\ Rating\"\,\"author\":\"Someone\"\,\"genre\":\"Mystery\"\,\"rating\":6\}
+HTTP 422
+{
+  "detail": [
+    {
+      "type": "less_than_equal",
+      "loc": [
+        "body",
+        "rating"
+      ],
+      "msg": "Input should be less than or equal to 5",
+      "input": 6,
+      "ctx": {
+        "le": 5
+      }
+    }
+  ]
+}
+
+### 11. Invalid: empty title (expect 422)
+$ curl -X POST http://localhost:8000/books -H Content-Type:\ application/json -d \{\"title\":\"\"\,\"author\":\"Someone\"\,\"genre\":\"Mystery\"\}
+HTTP 422
+{
+  "detail": [
+    {
+      "type": "string_too_short",
+      "loc": [
+        "body",
+        "title"
+      ],
+      "msg": "String should have at least 1 character",
+      "input": "",
+      "ctx": {
+        "min_length": 1
+      }
+    }
+  ]
+}
+
+### 12. Get non-existent book 9999 (expect 404)
+$ curl http://localhost:8000/books/9999
+HTTP 404
+{
+  "detail": "Book not found"
+}
+
+### 13. Delete book 1 (expect 204)
+$ curl -X DELETE http://localhost:8000/books/1
+HTTP 204
+(empty body)
+
+### 14. Get deleted book 1 again (expect 404)
+$ curl http://localhost:8000/books/1
+HTTP 404
+{
+  "detail": "Book not found"
+}
+
+================================================================
+# Persistence check: server stopped (pkill uvicorn), then started again
+# with the same command and the same data/demo.db file.
+================================================================
+
+### 15. After restart: list all books (books 2 and 3 should still be there, with the PUT changes)
+$ curl http://localhost:8000/books
+HTTP 200
+[
+  {
+    "title": "The Hobbit",
+    "author": "J.R.R. Tolkien",
+    "genre": "Fantasy",
+    "rating": 4,
+    "is_read": true,
+    "review": null,
+    "id": 2,
+    "created_at": "2026-10-25T18:41:36.755917",
+    "updated_at": "2026-10-25T18:41:36.755922"
+  },
+  {
+    "title": "Gone Girl",
+    "author": "Gillian Flynn",
+    "genre": "Thriller",
+    "rating": 5,
+    "is_read": true,
+    "review": "Could not put it down.",
+    "id": 3,
+    "created_at": "2026-10-25T18:41:36.802347",
+    "updated_at": "2026-10-25T18:41:37.073784"
+  }
+]
+

@@ -1,0 +1,26 @@
+$ uv run pytest --cov=app --cov-report=term-missing --cov-report=html
+============================= test session starts ==============================
+platform darwin -- Python 3.11.3, pytest-9.1.1, pluggy-1.7.0
+rootdir: /Users/galamshalem/project/book-vault
+configfile: pyproject.toml
+testpaths: tests
+plugins: cov-7.1.0, anyio-4.15.1
+collected 40 items
+
+tests/test_main.py ........................................              [100%]
+
+================================ tests coverage ================================
+_______________ coverage: platform darwin, python 3.11.3-final-0 _______________
+
+Name              Stmts   Miss  Cover   Missing
+-----------------------------------------------
+app/__init__.py       0      0   100%
+app/database.py      18      5    72%   15, 31-35
+app/main.py          53      0   100%
+app/models.py        18      0   100%
+app/schemas.py       40      0   100%
+-----------------------------------------------
+TOTAL               129      5    96%
+Coverage HTML written to dir htmlcov
+============================== 40 passed in 0.59s ==============================
+[exit code: 0]

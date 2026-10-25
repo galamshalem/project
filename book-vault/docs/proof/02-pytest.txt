@@ -1,0 +1,57 @@
+# Fresh clone of https://github.com/galamshalem/project.git at 559d6c0
+# Directory: /private/tmp/claude-501/-Users-galamshalem-project/4b8cf25d-4455-536c-8a81-14ec0e243424/scratchpad/fresh-clone.ng92/book-vault
+# Date: 2026-10-25 18:39:22 UTC
+
+$ uv run pytest -v
+============================= test session starts ==============================
+platform darwin -- Python 3.11.3, pytest-9.1.1, pluggy-1.7.0 -- /private/tmp/claude-501/-Users-galamshalem-project/4b8cf25d-4455-536c-8a81-14ec0e243424/scratchpad/fresh-clone.ng92/book-vault/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /private/tmp/claude-501/-Users-galamshalem-project/4b8cf25d-4455-536c-8a81-14ec0e243424/scratchpad/fresh-clone.ng92/book-vault
+configfile: pyproject.toml
+testpaths: tests
+plugins: anyio-4.15.1
+collecting ... collected 40 items
+
+tests/test_main.py::test_create_book_returns_201_with_generated_fields PASSED [  2%]
+tests/test_main.py::test_create_book_applies_defaults_and_strips_whitespace PASSED [  5%]
+tests/test_main.py::test_rating_and_review_allowed_when_unread PASSED    [  7%]
+tests/test_main.py::test_list_books_empty PASSED                         [ 10%]
+tests/test_main.py::test_get_book_by_id PASSED                           [ 12%]
+tests/test_main.py::test_update_book_is_partial_and_refreshes_updated_at PASSED [ 15%]
+tests/test_main.py::test_update_can_clear_rating_and_review PASSED       [ 17%]
+tests/test_main.py::test_delete_book PASSED                              [ 20%]
+tests/test_main.py::test_full_crud_lifecycle PASSED                      [ 22%]
+tests/test_main.py::test_filter_by_genre PASSED                          [ 25%]
+tests/test_main.py::test_filter_by_is_read PASSED                        [ 27%]
+tests/test_main.py::test_filter_by_min_rating_excludes_unrated PASSED    [ 30%]
+tests/test_main.py::test_filters_combined PASSED                         [ 32%]
+tests/test_main.py::test_rating_boundaries_accepted[1] PASSED            [ 35%]
+tests/test_main.py::test_rating_boundaries_accepted[5] PASSED            [ 37%]
+tests/test_main.py::test_rating_out_of_range_rejected[0] PASSED          [ 40%]
+tests/test_main.py::test_rating_out_of_range_rejected[6] PASSED          [ 42%]
+tests/test_main.py::test_empty_or_whitespace_title_author_rejected[empty-title] PASSED [ 45%]
+tests/test_main.py::test_empty_or_whitespace_title_author_rejected[empty-author] PASSED [ 47%]
+tests/test_main.py::test_empty_or_whitespace_title_author_rejected[whitespace-title] PASSED [ 50%]
+tests/test_main.py::test_empty_or_whitespace_title_author_rejected[whitespace-author] PASSED [ 52%]
+tests/test_main.py::test_invalid_genre_rejected PASSED                   [ 55%]
+tests/test_main.py::test_missing_required_field_rejected[title] PASSED   [ 57%]
+tests/test_main.py::test_missing_required_field_rejected[author] PASSED  [ 60%]
+tests/test_main.py::test_missing_required_field_rejected[genre] PASSED   [ 62%]
+tests/test_main.py::test_empty_body_rejected PASSED                      [ 65%]
+tests/test_main.py::test_invalid_rating_via_put_rejected[0] PASSED       [ 67%]
+tests/test_main.py::test_invalid_rating_via_put_rejected[6] PASSED       [ 70%]
+tests/test_main.py::test_invalid_fields_via_put_rejected[blank-title] PASSED [ 72%]
+tests/test_main.py::test_invalid_fields_via_put_rejected[empty-author] PASSED [ 75%]
+tests/test_main.py::test_invalid_fields_via_put_rejected[bad-genre] PASSED [ 77%]
+tests/test_main.py::test_invalid_fields_via_put_rejected[null-title] PASSED [ 80%]
+tests/test_main.py::test_invalid_fields_via_put_rejected[null-is_read] PASSED [ 82%]
+tests/test_main.py::test_min_rating_filter_out_of_range_rejected[0] PASSED [ 85%]
+tests/test_main.py::test_min_rating_filter_out_of_range_rejected[6] PASSED [ 87%]
+tests/test_main.py::test_invalid_genre_filter_rejected PASSED            [ 90%]
+tests/test_main.py::test_get_missing_book_returns_404 PASSED             [ 92%]
+tests/test_main.py::test_update_missing_book_returns_404 PASSED          [ 95%]
+tests/test_main.py::test_delete_missing_book_returns_404 PASSED          [ 97%]
+tests/test_main.py::test_data_persists_across_engine_rebuild PASSED      [100%]
+
+============================== 40 passed in 0.33s ==============================
+[exit code: 0]

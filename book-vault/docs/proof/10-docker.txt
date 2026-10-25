@@ -1,0 +1,162 @@
+# Docker verification: build, run with a named volume, restart, check persistence
+# Date: 2026-10-25 18:43:42 UTC
+
+$ docker --version
+Docker version 29.9.2, build a82e528
+[exit code: 0]
+
+$ docker build -t book-vault .
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.68kB done
+#1 DONE 0.0s
+
+#2 resolve image config for docker-image://docker.io/docker/dockerfile:1
+#2 DONE 1.1s
+
+#3 docker-image://docker.io/docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e
+#3 resolve docker.io/docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e 0.0s done
+#3 CACHED
+
+#4 [internal] load metadata for ghcr.io/astral-sh/uv:0.13-python3.11-trixie-slim
+#4 DONE 0.7s
+
+#5 [internal] load metadata for docker.io/library/python:3.11-slim
+#5 DONE 1.1s
+
+#6 [internal] load .dockerignore
+#6 transferring context: 466B done
+#6 DONE 0.0s
+
+#7 [stage-1 1/6] FROM docker.io/library/python:3.11-slim@sha256:b7a9e5f6a93d6d4a31f129bbd4bdee69efccb6ded0fb230d78aafaf37af98377
+#7 resolve docker.io/library/python:3.11-slim@sha256:b7a9e5f6a93d6d4a31f129bbd4bdee69efccb6ded0fb230d78aafaf37af98377 done
+#7 DONE 0.0s
+
+#8 [builder 1/4] FROM ghcr.io/astral-sh/uv:0.13-python3.11-trixie-slim@sha256:e1726dc72f5a45d6fde5814c9bdb87cfdf46ea4fd8a5fd806fdda378fffb4ae5
+#8 resolve ghcr.io/astral-sh/uv:0.13-python3.11-trixie-slim@sha256:e1726dc72f5a45d6fde5814c9bdb87cfdf46ea4fd8a5fd806fdda378fffb4ae5 done
+#8 DONE 0.0s
+
+#9 [internal] load build context
+#9 transferring context: 252.41kB 0.0s done
+#9 DONE 0.0s
+
+#10 [builder 2/4] WORKDIR /app
+#10 CACHED
+
+#11 [builder 3/4] COPY pyproject.toml uv.lock ./
+#11 DONE 0.0s
+
+#12 [builder 4/4] RUN --mount=type=cache,target=/root/.cache/uv     uv sync --frozen --no-dev
+#12 0.130 Using CPython 3.11.17 interpreter at: /usr/local/bin/python3
+#12 0.130 Creating virtual environment at: .venv
+#12 0.329 Installed 21 packages in 184ms
+#12 0.765 Bytecode compiled 715 files in 435ms
+#12 0.765  + annotated-doc==0.0.5
+#12 0.765  + annotated-types==0.8.0
+#12 0.765  + anyio==4.15.1
+#12 0.765  + click==8.5.0
+#12 0.765  + fastapi==0.162.0
+#12 0.765  + h11==0.16.0
+#12 0.765  + httptools==0.9.0
+#12 0.765  + idna==3.20
+#12 0.765  + opentelemetry-api==1.45.1
+#12 0.765  + pydantic==2.14.1
+#12 0.765  + pydantic-core==2.50.1
+#12 0.765  + python-dotenv==1.2.4
+#12 0.765  + pyyaml==6.0.3
+#12 0.765  + sqlalchemy==2.1.6
+#12 0.765  + starlette==1.10.0
+#12 0.765  + typing-extensions==4.16.0
+#12 0.765  + typing-inspection==0.4.4
+#12 0.765  + uvicorn==0.54.0
+#12 0.765  + uvloop==0.23.0
+#12 0.765  + watchfiles==1.3.0
+#12 0.765  + websockets==17.3
+#12 DONE 0.8s
+
+#13 [stage-1 2/6] RUN groupadd --system app && useradd --system --gid app --no-create-home app
+#13 CACHED
+
+#14 [stage-1 3/6] WORKDIR /app
+#14 CACHED
+
+#15 [stage-1 4/6] COPY --from=builder /app/.venv /app/.venv
+#15 DONE 0.3s
+
+#16 [stage-1 5/6] COPY app/ ./app/
+#16 DONE 0.0s
+
+#17 [stage-1 6/6] RUN mkdir -p /app/data && chown app:app /app/data
+#17 DONE 0.1s
+
+#18 exporting to image
+#18 exporting layers
+#18 exporting layers 2.1s done
+#18 exporting manifest sha256:c4e155d0885f5db6a1d085d57f2b0308b87626e40be96deebdda3c2e78d5a0f9 done
+#18 exporting config sha256:b5728ffdd6680dc3fc839ade3349501ec8d6099608fdb8151ebe099649c48ca0 done
+#18 exporting attestation manifest sha256:83106004c943cf4e5b1000f63152f27428e7d7c3250ad14afb61c92210715f2a done
+#18 exporting manifest list sha256:bfd9df3e0fde98ea5f09099f21a7bdf78d3129753b5537bae48d65dc56390a67 done
+#18 naming to docker.io/library/book-vault:latest done
+#18 unpacking to docker.io/library/book-vault:latest
+#18 unpacking to docker.io/library/book-vault:latest 0.4s done
+#18 DONE 2.5s
+[exit code: 0]
+
+$ docker run -d --name book-vault -p 8000:8000 -v book-vault-data:/app/data book-vault
+713caa7bd01a25ef314cd5b153a14ccdded1f0f2f67584ef5d9c40b228cd728b
+[exit code: 0]
+
+$ docker ps --filter name=book-vault --format {{.Names}}  {{.Image}}  {{.Status}}  {{.Ports}}
+book-vault  book-vault  Up 1 second  0.0.0.0:8000->8000/tcp, [::]:8000->8000/tcp
+[exit code: 0]
+
+$ docker exec book-vault id
+uid=999(app) gid=999(app) groups=999(app)
+[exit code: 0]
+
+$ curl -X POST localhost:8000/books -H Content-Type: application/json -d {"title":"Dune","author":"Frank Herbert","genre":"Sci-Fi","rating":5,"is_read":true}
+{"title":"Dune","author":"Frank Herbert","genre":"Sci-Fi","rating":5,"is_read":true,"review":null,"id":1,"created_at":"2026-10-25T18:43:50.870966","updated_at":"2026-10-25T18:43:50.870972"}
+HTTP 201
+
+$ curl -X POST localhost:8000/books -H Content-Type: application/json -d {"title":"Pride and Prejudice","author":"Jane Austen","genre":"Romance"}
+{"title":"Pride and Prejudice","author":"Jane Austen","genre":"Romance","rating":null,"is_read":false,"review":null,"id":2,"created_at":"2026-10-25T18:43:50.889083","updated_at":"2026-10-25T18:43:50.889087"}
+HTTP 201
+
+$ curl localhost:8000/books
+[{"title":"Dune","author":"Frank Herbert","genre":"Sci-Fi","rating":5,"is_read":true,"review":null,"id":1,"created_at":"2026-10-25T18:43:50.870966","updated_at":"2026-10-25T18:43:50.870972"},{"title":"Pride and Prejudice","author":"Jane Austen","genre":"Romance","rating":null,"is_read":false,"review":null,"id":2,"created_at":"2026-10-25T18:43:50.889083","updated_at":"2026-10-25T18:43:50.889087"}]
+HTTP 200
+
+# ---- Restarting the container (same container, same volume) ----
+
+$ docker restart book-vault
+book-vault
+[exit code: 0]
+
+$ curl localhost:8000/books
+[{"title":"Dune","author":"Frank Herbert","genre":"Sci-Fi","rating":5,"is_read":true,"review":null,"id":1,"created_at":"2026-10-25T18:43:50.870966","updated_at":"2026-10-25T18:43:50.870972"},{"title":"Pride and Prejudice","author":"Jane Austen","genre":"Romance","rating":null,"is_read":false,"review":null,"id":2,"created_at":"2026-10-25T18:43:50.889083","updated_at":"2026-10-25T18:43:50.889087"}]
+HTTP 200
+
+# ---- Removing the container entirely and starting a new one on the same volume ----
+
+$ docker rm -f book-vault
+book-vault
+[exit code: 0]
+
+$ docker run -d --name book-vault -p 8000:8000 -v book-vault-data:/app/data book-vault
+94a860ca13728913f42ad590388d4d5301baa1d73ea169569e0ae4e0346a2bdb
+[exit code: 0]
+
+$ curl localhost:8000/books
+[{"title":"Dune","author":"Frank Herbert","genre":"Sci-Fi","rating":5,"is_read":true,"review":null,"id":1,"created_at":"2026-10-25T18:43:50.870966","updated_at":"2026-10-25T18:43:50.870972"},{"title":"Pride and Prejudice","author":"Jane Austen","genre":"Romance","rating":null,"is_read":false,"review":null,"id":2,"created_at":"2026-10-25T18:43:50.889083","updated_at":"2026-10-25T18:43:50.889087"}]
+HTTP 200
+
+$ docker logs book-vault
+INFO:     Started server process [1]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     192.168.65.1:16191 - "GET /books HTTP/1.1" 200 OK
+INFO:     192.168.65.1:20057 - "GET /books HTTP/1.1" 200 OK
+[exit code: 0]
+
