@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+
+# Local SQLite database (created at runtime)
+data/
+*.db
+
+# Environment
+.env
+
+# OS / editors
+.DS_Store
+.vscode/
+.idea/

@@ -1,0 +1,41 @@
+[project]
+name = "book-vault"
+version = "0.1.0"
+description = "Personal Book Vault & Reading Tracker - a FastAPI + SQLite REST API"
+readme = "README.md"
+authors = [
+    { name = "galamshalem1", email = "galamshalem1@gmail.com" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.162.0",
+    "pydantic>=2.14.1",
+    "sqlalchemy>=2.1.6",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "pytest>=9.1.1",
+    "ruff>=0.17.2",
+]
+
+[tool.uv]
+# This is an application, not an installable library: uv only manages the venv.
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+# pycodestyle, pyflakes, isort, pyupgrade, bugbear, simplify
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI's Depends()/Query() in argument defaults is the intended idiom.
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Query"]
