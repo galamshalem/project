@@ -140,7 +140,8 @@ uv run pytest -v
 
 Each test runs against its own fresh in-memory database, so tests never touch
 `./data/books.db`. The suite covers CRUD, every filter and filter combinations,
-validation errors, 404s, and persistence across an engine restart.
+validation errors, 404s (including that they're documented in OpenAPI), the
+`get_db` dependency, and persistence across an engine restart.
 
 Coverage report (terminal + HTML in `htmlcov/`):
 
@@ -185,8 +186,8 @@ stage, and the runtime stage is `python:3.11-slim` running as a non-root user.
 [docs/proof/PROOF.md](docs/proof/PROOF.md) collects evidence that the project works.
 It includes:
 
-- a lint and test run on a fresh clone of the repository
-- the test coverage report
+- a lint and test run (47 tests, all passing)
+- the test coverage report (100%)
 - a live curl session, including a server restart
 - Swagger UI screenshots of real requests
 - a Docker run that shows the data survives container restarts

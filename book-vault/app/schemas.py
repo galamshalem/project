@@ -60,6 +60,12 @@ class BookUpdate(BaseModel):
         return self
 
 
+class ErrorResponse(BaseModel):
+    """Body of error responses raised with HTTPException (e.g. 404)."""
+
+    detail: str
+
+
 class BookRead(BookBase):
     """Response body: the stored book, built straight from the ORM object."""
 

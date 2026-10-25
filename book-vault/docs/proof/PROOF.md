@@ -4,11 +4,15 @@ All evidence below was produced on 2026-10-25. Text files contain the exact comm
 that were run together with their full, unedited output. Screenshots were taken with
 Playwright driving Google Chrome against the running server, at a 1400×900 viewport.
 
+Evidence 01–03, 05 and 09 were refreshed after the 404 responses were documented in
+OpenAPI and the `database.py` tests were added. An earlier run on a fresh clone of the
+repository (commit `559d6c0`) also passed ruff and every test.
+
 | # | Evidence | What it shows |
 |---|----------|---------------|
-| 01 | [01-ruff.txt](01-ruff.txt) | `uv sync` + `ruff check` on a fresh clone |
-| 02 | [02-pytest.txt](02-pytest.txt), [02-pytest.png](02-pytest.png) | Full test run on a fresh clone: 40 passed |
-| 03 | [03-coverage.txt](03-coverage.txt), [03-coverage.png](03-coverage.png) | Test coverage: 96% |
+| 01 | [01-ruff.txt](01-ruff.txt) | `uv sync` + `ruff check`: no issues |
+| 02 | [02-pytest.txt](02-pytest.txt), [02-pytest.png](02-pytest.png) | Full test run: 47 passed |
+| 03 | [03-coverage.txt](03-coverage.txt), [03-coverage.png](03-coverage.png) | Test coverage: 100% |
 | 04 | [04-api-demo.txt](04-api-demo.txt) | Live curl session against the server, including a restart |
 | 05–09 | Swagger UI screenshots | Interactive docs, with real requests executed |
 | 10 | [10-docker.txt](10-docker.txt) | Docker build, run, restart and persistence |
@@ -25,8 +29,10 @@ generated automatically at `/docs`.
 Pydantic v2 schemas reject bad input with FastAPI's standard `422` response. The
 checks cover ratings outside 1–5, empty or whitespace-only titles and authors, unknown
 genres, and missing fields. The demo shows rating 6 and an empty title both returning
-`422` (steps 10–11 in [04-api-demo.txt](04-api-demo.txt)). The 404 screenshot shows a
-missing id returning `{"detail": "Book not found"}`.
+`422` (steps 10–11 in [04-api-demo.txt](04-api-demo.txt)). A missing id returns
+`404` with `{"detail": "Book not found"}`. That 404 is declared in OpenAPI, using an
+`ErrorResponse` schema, on `GET`, `PUT` and `DELETE /books/{book_id}`, so Swagger lists
+it as a documented response. A test checks `/openapi.json` to confirm this.
 
 ![422 for rating 6 in Swagger UI](08-swagger-422.png)
 
@@ -58,19 +64,28 @@ temporary file.
 
 ## Tests
 
-The suite has 40 pytest tests, each with an isolated in-memory database. They cover
-CRUD, every filter and filter combinations, validation `422`s, `404`s, and
-persistence. On a fresh clone of the repository, all 40 pass, and ruff reports no
-issues ([01-ruff.txt](01-ruff.txt), [02-pytest.txt](02-pytest.txt)).
+The suite has 47 pytest tests, each with an isolated in-memory database. They cover:
 
-![pytest output: 40 passed](02-pytest.png)
+- CRUD
+- every filter, and filter combinations
+- validation `422`s and `404`s
+- the documented 404s in OpenAPI
+- the real `get_db` dependency
+- creation of the database directory
+- persistence
+
+All 47 pass, and ruff reports no issues ([01-ruff.txt](01-ruff.txt),
+[02-pytest.txt](02-pytest.txt)).
+
+![pytest output: 47 passed](02-pytest.png)
 
 ## Coverage
 
-Coverage is 96% overall, and 100% for `main.py`, `models.py` and `schemas.py`
-([03-coverage.txt](03-coverage.txt)). The only lines not covered are in
-`database.py`: the code that creates `./data` and the production `get_db`. The tests
-deliberately replace both with an isolated test database.
+Coverage is 100% for every module in `app/` (137 of 137 statements), with no lines
+excluded by `# pragma: no cover` ([03-coverage.txt](03-coverage.txt)). The real `get_db`
+dependency is tested directly: the session is closed both after a normal request and
+after an error. Directory creation is tested in a temporary directory, so the real
+`data/` folder is never touched.
 
 ![HTML coverage report](03-coverage.png)
 

@@ -2,6 +2,7 @@
 
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from typing import Any
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Response, status
 from sqlalchemy import select
@@ -9,7 +10,14 @@ from sqlalchemy.orm import Session
 
 from app.database import Base, engine, get_db
 from app.models import Book, utcnow
-from app.schemas import BookCreate, BookRead, BookUpdate, Genre
+from app.schemas import BookCreate, BookRead, BookUpdate, ErrorResponse, Genre
+
+BOOK_NOT_FOUND = "Book not found"
+
+# Declared on every /books/{book_id} route so the 404 appears in the OpenAPI docs.
+NOT_FOUND_RESPONSE: dict[int | str, dict[str, Any]] = {
+    status.HTTP_404_NOT_FOUND: {"model": ErrorResponse, "description": BOOK_NOT_FOUND},
+}
 
 
 @asynccontextmanager
@@ -31,7 +39,7 @@ def get_book_or_404(db: Session, book_id: int) -> Book:
     """Fetch a book by id, raising 404 if it doesn't exist."""
     book = db.get(Book, book_id)
     if book is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Book not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=BOOK_NOT_FOUND)
     return book
 
 
@@ -63,12 +71,12 @@ def list_books(
     return list(db.scalars(query))
 
 
-@app.get("/books/{book_id}", response_model=BookRead)
+@app.get("/books/{book_id}", response_model=BookRead, responses=NOT_FOUND_RESPONSE)
 def get_book(book_id: int, db: Session = Depends(get_db)) -> Book:
     return get_book_or_404(db, book_id)
 
 
-@app.put("/books/{book_id}", response_model=BookRead)
+@app.put("/books/{book_id}", response_model=BookRead, responses=NOT_FOUND_RESPONSE)
 def update_book(book_id: int, payload: BookUpdate, db: Session = Depends(get_db)) -> Book:
     """Partially update a book: only fields present in the request body change."""
     book = get_book_or_404(db, book_id)
@@ -81,7 +89,9 @@ def update_book(book_id: int, payload: BookUpdate, db: Session = Depends(get_db)
     return book
 
 
-@app.delete("/books/{book_id}", status_code=status.HTTP_204_NO_CONTENT)
+@app.delete(
+    "/books/{book_id}", status_code=status.HTTP_204_NO_CONTENT, responses=NOT_FOUND_RESPONSE
+)
 def delete_book(book_id: int, db: Session = Depends(get_db)) -> Response:
     book = get_book_or_404(db, book_id)
     db.delete(book)

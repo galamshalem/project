@@ -1,15 +1,16 @@
 """API tests for the Book Vault: CRUD, filters, validation, 404s and persistence."""
 
+import os
 from collections.abc import Generator
 from pathlib import Path
 from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import Session, sessionmaker
 
-from app.database import Base, get_db
+from app.database import DEFAULT_DATABASE_URL, Base, ensure_sqlite_dir, get_db
 from app.main import app
 
 VALID_BOOK: dict[str, Any] = {
@@ -273,6 +274,73 @@ def test_delete_missing_book_returns_404(client: TestClient) -> None:
     response = client.delete(f"/books/{MISSING_ID}")
     assert response.status_code == 404
     assert response.json() == {"detail": "Book not found"}
+
+
+def test_404_documented_in_openapi(client: TestClient) -> None:
+    spec = client.get("/openapi.json").json()
+    operations = spec["paths"]["/books/{book_id}"]
+    for method in ("get", "put", "delete"):
+        not_found = operations[method]["responses"].get("404")
+        assert not_found is not None, f"404 not documented on {method.upper()}"
+        assert not_found["description"] == "Book not found"
+        schema_ref = not_found["content"]["application/json"]["schema"]["$ref"]
+        assert schema_ref == "#/components/schemas/ErrorResponse"
+    error_schema = spec["components"]["schemas"]["ErrorResponse"]
+    assert error_schema["properties"]["detail"]["type"] == "string"
+
+
+# ----------------------------------------------------------------------- Database
+
+
+def test_get_db_yields_session_and_closes_it() -> None:
+    """The real get_db dependency (not the test override) opens and closes a session."""
+    dependency = get_db()
+    db = next(dependency)
+    assert isinstance(db, Session)
+    assert db.execute(text("SELECT 1")).scalar_one() == 1
+    assert db.in_transaction()
+    # Finishing the generator (what FastAPI does after the response) runs `finally`.
+    with pytest.raises(StopIteration):
+        next(dependency)
+    assert not db.in_transaction()
+
+
+def test_get_db_closes_session_on_error() -> None:
+    """If the request handler raises, the session is still closed."""
+    dependency = get_db()
+    db = next(dependency)
+    db.execute(text("SELECT 1"))
+    with pytest.raises(RuntimeError):
+        dependency.throw(RuntimeError("handler failed"))
+    assert not db.in_transaction()
+
+
+def test_default_database_dir_is_created(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    # Run from an empty temp dir so the relative ./data path never hits the real one.
+    monkeypatch.chdir(tmp_path)
+    assert not (tmp_path / "data").exists()
+    ensure_sqlite_dir(DEFAULT_DATABASE_URL)
+    assert (tmp_path / "data").is_dir()
+    ensure_sqlite_dir(DEFAULT_DATABASE_URL)  # idempotent: no error if it already exists
+
+
+def test_custom_database_url_dir_is_created(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    db_file = tmp_path / "nested" / "dir" / "books.db"
+    monkeypatch.setenv("DATABASE_URL", f"sqlite:///{db_file}")
+    ensure_sqlite_dir(os.environ["DATABASE_URL"])
+    assert db_file.parent.is_dir()
+    assert not db_file.exists()  # only the directory; SQLite creates the file itself
+
+
+@pytest.mark.parametrize("url", ["sqlite://", "sqlite:///:memory:"])
+def test_in_memory_database_creates_no_dirs(
+    url: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    ensure_sqlite_dir(url)
+    assert list(tmp_path.iterdir()) == []
 
 
 # -------------------------------------------------------------------- Persistence

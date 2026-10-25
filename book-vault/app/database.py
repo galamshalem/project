@@ -4,15 +4,26 @@ import os
 from collections.abc import Generator
 from pathlib import Path
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, make_url
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 DEFAULT_DATABASE_URL = "sqlite:///./data/books.db"
 DATABASE_URL = os.getenv("DATABASE_URL", DEFAULT_DATABASE_URL)
 
-# SQLite won't create missing parent directories, so make sure ./data exists.
-if DATABASE_URL == DEFAULT_DATABASE_URL:
-    Path("./data").mkdir(parents=True, exist_ok=True)
+
+def ensure_sqlite_dir(url: str) -> None:
+    """Create the parent directory of a file-based SQLite database if it's missing.
+
+    SQLite creates the database file itself but not missing directories, so without
+    this the default ./data/books.db would fail on a fresh checkout. In-memory and
+    non-SQLite URLs are left alone.
+    """
+    parsed = make_url(url)
+    if parsed.get_backend_name() == "sqlite" and parsed.database not in (None, "", ":memory:"):
+        Path(parsed.database).parent.mkdir(parents=True, exist_ok=True)
+
+
+ensure_sqlite_dir(DATABASE_URL)
 
 # SQLite connections refuse cross-thread use by default; FastAPI may serve a
 # request on a different thread than the one that opened the connection.

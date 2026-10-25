@@ -5,9 +5,9 @@ rootdir: /Users/galamshalem/project/book-vault
 configfile: pyproject.toml
 testpaths: tests
 plugins: cov-7.1.0, anyio-4.15.1
-collected 40 items
+collected 47 items
 
-tests/test_main.py ........................................              [100%]
+tests/test_main.py ...............................................       [100%]
 
 ================================ tests coverage ================================
 _______________ coverage: platform darwin, python 3.11.3-final-0 _______________
@@ -15,12 +15,12 @@ _______________ coverage: platform darwin, python 3.11.3-final-0 _______________
 Name              Stmts   Miss  Cover   Missing
 -----------------------------------------------
 app/__init__.py       0      0   100%
-app/database.py      18      5    72%   15, 31-35
-app/main.py          53      0   100%
+app/database.py      21      0   100%
+app/main.py          56      0   100%
 app/models.py        18      0   100%
-app/schemas.py       40      0   100%
+app/schemas.py       42      0   100%
 -----------------------------------------------
-TOTAL               129      5    96%
+TOTAL               137      0   100%
 Coverage HTML written to dir htmlcov
-============================== 40 passed in 0.59s ==============================
+============================== 47 passed in 0.66s ==============================
 [exit code: 0]

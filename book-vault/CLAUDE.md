@@ -49,8 +49,11 @@ data/           runtime SQLite file (gitignored, also the Docker volume at /app/
   that omitted fields are left alone. New optional fields on `BookUpdate` must
   follow the same pattern. If a new column is NOT NULL, add it to the explicit-null
   check in `BookUpdate`.
-- **Errors.** Use `get_book_or_404()` for id lookups. Leave validation errors to
-  FastAPI's default `422` response.
+- **Errors.** Use `get_book_or_404()` for id lookups, so the 404 message is always
+  `BOOK_NOT_FOUND`. Every `/books/{book_id}` route declares
+  `responses=NOT_FOUND_RESPONSE` so the 404 is documented in OpenAPI, and
+  `test_404_documented_in_openapi` checks this. Leave validation errors to FastAPI's
+  default `422` response.
 - **Tests are required.** Every new endpoint needs tests for success, validation
   (`422`) and not-found (`404`) cases. Use the `client` fixture and never point tests
   at `./data/books.db`.
